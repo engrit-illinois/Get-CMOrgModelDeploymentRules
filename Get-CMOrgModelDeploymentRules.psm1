@@ -1,10 +1,10 @@
 function Connect-ToMECM {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [string]$Prefix="UIUC-ENGR-",
-		[string]$SiteCode="MP0",
-		[string]$Provider="sccmcas.ad.uillinois.edu",
-        [string]$CMPSModulePath="$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1"
+        [string]$Prefix,
+		[string]$SiteCode,
+		[string]$Provider,
+        [string]$CMPSModulePath
     )
 
     Write-Host "Preparing connection to MECM..."
@@ -25,13 +25,17 @@ Function Get-CMOrgModelDeploymentRules{
 
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [switch]$Json
+        [switch]$Json,
+        [string]$Prefix="UIUC-ENGR-",
+		[string]$SiteCode="MP0",
+		[string]$Provider="sccmcas.ad.uillinois.edu",
+        [string]$CMPSModulePath="$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1"
     )
     begin{
         $myPWD = $PWD.Path
 
         try {
-            Connect-ToMECM
+            Connect-ToMECM -Prefix $Prefix -SiteCode $SiteCode -Provider $Provider -CMPSModulePath $CMPSModulePath
             
             ## Declare the empty arraylist
             $output = New-Object System.Collections.ArrayList
