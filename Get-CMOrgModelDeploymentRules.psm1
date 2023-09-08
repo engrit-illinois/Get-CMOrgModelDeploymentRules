@@ -21,7 +21,7 @@ function Connect-ToMECM {
     Write-Host "Done prepping connection to MECM."
 }
 
-Function Get-CMOrgModelDeploymentRules{
+function Get-CMOrgModelDeploymentRules{
 
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -137,4 +137,4 @@ Function Get-CMOrgModelDeploymentRules{
         }
     }
 }
-Export-ModuleMember -Function Get-CMOrgModelDeploymentRules
+Export-ModuleMember Get-CMOrgModelDeploymentRules
