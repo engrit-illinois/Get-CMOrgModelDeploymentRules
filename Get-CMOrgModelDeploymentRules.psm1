@@ -21,11 +21,52 @@ function Connect-ToMECM {
     Write-Host "Done prepping connection to MECM."
 }
 
+function Build-ArrayObject {
+    
+    [CmdletBinding()]
+    param(
+        $Collection,
+        $AppDeployment,
+        $Action,
+        $DirectMembershipRules,
+        $ExcludeMembershipRules,
+        $IncludeMembershipRules,
+        $QueryMembershipRules,
+        $DeploymentType
+    )
+    Write-Verbose "Building the custom array for $($Collection.Name)..."
+    Write-Verbose "Name = $($AppDeployment.ApplicationName)"
+    Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
+    Write-Verbose "Action = $Action"
+    Write-Verbose "DirectMembershipRules = $($DirectMembershipRules.RuleName)"
+    Write-Verbose "ExcludeMembershipRules = $($ExcludeMembershipRules.RuleName)"
+    Write-Verbose "IncludeMembershipRules = $($IncludeMembershipRules.RuleName)"
+    Write-Verbose "QueryMembershipRules = $($QueryMembershipRules.RuleName)"
+    Write-Verbose "DeploymentType = $DeploymentType"
+    Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
+    
+    ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
+    $output = [PSCustomObject]@{
+        Name                        = $AppDeployment.ApplicationName
+        ### Lazy hack to account for us not being on GMT
+        DeploymentStartTime         = $AppDeployment.StartTime.AddHours(5)
+        Action                      = $Action
+        DirectMembershipRules       = $DirectMembershipRules.RuleName
+        ExcludeMembershipRules      = $ExcludeMembershipRules.RuleName
+        IncludeMembershipRules      = $IncludeMembershipRules.RuleName
+        QueryMembershipRules        = $QueryMembershipRules.RuleName
+        DeploymentType              = $DeploymentType
+        Supersedence                = $AppDeployment.UpdateSupersedence
+    }
+    $output
+}
+
 function Get-CMOrgModelDeploymentRules{
 
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [switch]$Json,
+        [switch]$ISOnly,
         [string]$Prefix="UIUC-ENGR-",
 		[string]$SiteCode="MP0",
 		[string]$Provider="sccmcas.ad.uillinois.edu",
@@ -69,55 +110,45 @@ function Get-CMOrgModelDeploymentRules{
                 $AppDeployment = Get-CMApplicationDeployment -Collection $Collection
                 Write-Verbose "Getting other Deployment info for $($Collection.Name)..."
                 $DeploySummary = Get-CMDeployment -CollectionName $Collection.Name
-            
-                ## Install or Uninstall
-                Write-Verbose "Determining whether this is Install or Uninstall"
-                switch($DeploySummary.DesiredConfigType){
-                    1 { $Action = "INSTALL" }
-                    2 { $Action = "UNINSTALL" }
-                    Default {
-                        "UNKNOWN"
-                    }
-                }
-            
-                ## Available or Required
-                Write-Verbose "Determining whether this is Required or Available"
-                $OfferType = ($AppDeployment).OfferTypeID
-                switch ($OfferType){
-                    0 { $DeploymentType = "REQUIRED" }
-                    2 { $DeploymentType = "AVAILABLE" }
-                    Default {
-                        "UNKNOWN"
-                    }
-                }
-            
+                
+
                 if($null -eq $AppDeployment){
                     Write-Host "$($Collection.Name) has no App deployment, so skipping!"
                 }else{
-                    ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
-                    Write-Verbose "Building the custom array for $($Collection.Name)..."
-                    Write-Verbose "Name = $($AppDeployment.ApplicationName)"
-                    Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
-                    Write-Verbose "Action = $Action"
-                    Write-Verbose "DirectMembershipRules = $($DirectMembershipRules.RuleName)"
-                    Write-Verbose "ExcludeMembershipRules = $($ExcludeMembershipRules.RuleName)"
-                    Write-Verbose "IncludeMembershipRules = $($IncludeMembershipRules.RuleName)"
-                    Write-Verbose "QueryMembershipRules = $($QueryMembershipRules.RuleName)"
-                    Write-Verbose "DeploymentType = $DeploymentType"
-                    Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
-                    $MembershipRules = [PSCustomObject]@{
-                        Name                        = $AppDeployment.ApplicationName
-                        ### Lazy hack to account for us not being on GMT
-                        DeploymentStartTime         = $AppDeployment.StartTime.AddHours(5)
-                        Action                      = $Action
-                        DirectMembershipRules       = $DirectMembershipRules.RuleName
-                        ExcludeMembershipRules      = $ExcludeMembershipRules.RuleName
-                        IncludeMembershipRules      = $IncludeMembershipRules.RuleName
-                        QueryMembershipRules        = $QueryMembershipRules.RuleName
-                        DeploymentType              = $DeploymentType
-                        Supersedence                = $AppDeployment.UpdateSupersedence
+                    ## Install or Uninstall
+                    Write-Verbose "Determining whether this is Install or Uninstall"
+                    switch($DeploySummary.DesiredConfigType){
+                        1 { $Action = "INSTALL" }
+                        2 { $Action = "UNINSTALL" }
+                        Default {
+                            "UNKNOWN"
+                        }
                     }
-                    Write-Verbose "Adding details for $($Collection.Name) to the output..."
+                
+                    ## Available or Required
+                    Write-Verbose "Determining whether this is Required or Available"
+                    $OfferType = ($AppDeployment).OfferTypeID
+                    switch ($OfferType){
+                        0 { $DeploymentType = "REQUIRED" }
+                        2 { $DeploymentType = "AVAILABLE" }
+                        Default {
+                            "UNKNOWN"
+                        }
+                    }
+
+                    if($ISOnly){
+                        # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
+                        Write-Verbose "ISOnly flag was declared, so filtering only to collections with rules pointing to IS collections."
+                        if(
+                            ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) -or
+                            ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"})
+                        ){
+                            $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        }
+                    }else{
+                        $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                    }
+                    Write-Verbose "Adding to the function output array."
                     $output.Add($MembershipRules) | Out-Null
                 }
             }
