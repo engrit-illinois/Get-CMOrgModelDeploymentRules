@@ -1,1 +1,1 @@
-# Get-CMOrgModelDeploymentCollections
+# Get-CMOrgModelDeploymentRules
