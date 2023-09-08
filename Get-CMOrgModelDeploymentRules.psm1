@@ -1,4 +1,4 @@
-Function Get-CMOrgModelDeploymentCollections{
+Function Get-CMOrgModelDeploymentRules{
 
     Prep-MECM
      
