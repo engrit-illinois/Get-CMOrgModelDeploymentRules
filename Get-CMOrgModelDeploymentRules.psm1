@@ -1,3 +1,7 @@
+$DEFAULT_PREFIX = "UIUC-ENGR-"
+$DEFAULT_SITE_CODE = "MP0"
+$DEFAULT_PROVIDER = "sccmcas.ad.uillinois.edu"
+
 function Connect-ToMECM {
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -47,6 +51,7 @@ function Build-ArrayObject {
     
     ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
     $output = [PSCustomObject]@{
+        CollectionName              = $Collection.Name
         Name                        = $AppDeployment.ApplicationName
         ### Lazy hack to account for us not being on GMT
         DeploymentStartTime         = $AppDeployment.StartTime.AddHours(5)
@@ -67,9 +72,9 @@ function Get-CMOrgModelDeploymentRules{
     param(
         [switch]$Json,
         [switch]$ISOnly,
-        [string]$Prefix="UIUC-ENGR-",
-		[string]$SiteCode="MP0",
-		[string]$Provider="sccmcas.ad.uillinois.edu",
+        [string]$Prefix = $DEFAULT_PREFIX,
+		[string]$SiteCode=$DEFAULT_SITE_CODE,
+		[string]$Provider=$DEFAULT_PROVIDER,
         [string]$CMPSModulePath="$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1"
     )
     begin{
@@ -88,14 +93,12 @@ function Get-CMOrgModelDeploymentRules{
     process{
         try{
             Write-Host "Getting all collections... (note: this takes a while)"
-            $DeviceCollections = Get-CMDeviceCollection
-            
-            Write-Host "Filtering collections..."
-            $DeployCollections = $DeviceCollections | Where-Object -Property Name -Like "UIUC-ENGR-IS Deploy*"
-            $DeployCollections += $DeviceCollections | Where-Object -Property Name -Like "UIUC-ENGR-Deploy*"
+            $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
 
             Write-Host "Getting Membership Rules..."
             foreach($Collection in $DeployCollections){
+                Write-Verbose "Initializing the Membership Rules array as empty"
+                $MembershipRules = $null
                 Write-Host "Processing $($Collection.Name)..."
                 Write-Verbose "Getting Direct Membership Rules for $($Collection.Name)..."
                 $DirectMembershipRules = Get-CMDeviceCollectionDirectMembershipRule -CollectionName $Collection.Name
@@ -143,15 +146,20 @@ function Get-CMOrgModelDeploymentRules{
                             ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) -or
                             ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"})
                         ){
-                            $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                            if($MembershipRules){
+                                $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                            }
                         }
                     }else{
-                        $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        if($MembershipRules){
+                            $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        }
                     }
                     Write-Verbose "Adding to the function output array."
                     $output.Add($MembershipRules) | Out-Null
                 }
             }
+            $output = $output | Sort-Object -Unique -Property CollectionName
         } catch {
             Write-Host $_
         } finally {
