@@ -138,24 +138,19 @@ function Get-CMOrgModelDeploymentRules{
                             "UNKNOWN"
                         }
                     }
-                    if($ISOnly){
+
+                    if(
+                        ($ISOnly) -and
+                        (-not ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) ) -and
+                        (-not ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) )
+                    ) {
                         # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
-                        Write-Verbose "ISOnly flag was declared, so filtering only to collections with rules pointing to IS collections."
-                        if(
-                            ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) -or
-                            ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"})
-                        ){
-                            if( -not $MembershipRules){
-                                $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
-                            }
-                        }
-                    }else{
-                        if( -not $MembershipRules){
-                            $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
-                        }
+                        Write-Verbose "ISOnly flag was declared, but no Include or Exclude membership rules were found on $($Collection.Name) referencing `"UIUC-ENGR-IS*`" collections."
+                    } else {
+                        $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        Write-Verbose "Adding to the function output array."
+                        $output.Add($MembershipRules) | Out-Null
                     }
-                    Write-Verbose "Adding to the function output array."
-                    $output.Add($MembershipRules) | Out-Null
                 }
             }
             $output = $output | Sort-Object -Property CollectionName
