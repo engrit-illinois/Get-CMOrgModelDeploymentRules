@@ -145,12 +145,12 @@ function Get-CMOrgModelDeploymentRules{
                             ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) -or
                             ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"})
                         ){
-                            if(!($MembershipRules)){
+                            if( -not $MembershipRules){
                                 $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                             }
                         }
                     }else{
-                        if(!($MembershipRules)){
+                        if( -not $MembershipRules){
                             $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                         }
                     }
