@@ -138,7 +138,6 @@ function Get-CMOrgModelDeploymentRules{
                             "UNKNOWN"
                         }
                     }
-
                     if($ISOnly){
                         # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
                         Write-Verbose "ISOnly flag was declared, so filtering only to collections with rules pointing to IS collections."
@@ -146,12 +145,12 @@ function Get-CMOrgModelDeploymentRules{
                             ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) -or
                             ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"})
                         ){
-                            if($MembershipRules){
+                            if(!($MembershipRules)){
                                 $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                             }
                         }
                     }else{
-                        if($MembershipRules){
+                        if(!($MembershipRules)){
                             $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                         }
                     }
@@ -159,7 +158,7 @@ function Get-CMOrgModelDeploymentRules{
                     $output.Add($MembershipRules) | Out-Null
                 }
             }
-            $output = $output | Sort-Object -Unique -Property CollectionName
+            $output = $output | Sort-Object -Property CollectionName
         } catch {
             Write-Host $_
         } finally {
