@@ -86,6 +86,12 @@ function Get-CMOrgModelDeploymentRules{
             
             ## Declare the empty arraylist
             $output = New-Object System.Collections.ArrayList
+
+            $myProgressView = $PSStyle.Progress.View
+            $PSStyle.Progress.View = 'Classic'
+            $TotalCollections = $DeployCollections.Count                                    # Using for progress bar
+            $PercentComplete = 0                                                            # Using for progress bar
+            $CollectionCount = 0                                                            # Using for progress bar
         } catch {
             Write-Host $_
         }
@@ -95,10 +101,7 @@ function Get-CMOrgModelDeploymentRules{
         try{
             Write-Host "Getting all collections... (note: this takes a while)"
             $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
-
-            $TotalCollections = $DeployCollections.Count                                    # Using for progress bar
-            $PercentComplete = 0                                                            # Using for progress bar
-            $CollectionCount = 0                                                            # Using for progress bar
+            
             if($NoProgressBar){
                 Write-Host "Processing Membership Rules..."
             }
@@ -106,7 +109,7 @@ function Get-CMOrgModelDeploymentRules{
                 if($NoProgressBar){
                     Write-Host "Processing $($Collection.Name)..."
                 }else{
-                    Write-Progress -Activity "Processing Membership Rules..." -Status "$($PercentComplete)% Processing $($Collection.Name)..." -PercentComplete $PercentComplete
+                    Write-Progress -Activity "Processing Membership Rules..." -Status "$($PercentComplete)%" -CurrentOperation "Processing $($Collection.Name)..." -PercentComplete $PercentComplete
                     $CollectionCount++                                                          # Using for progress bar
                     $PercentComplete = [int](($CollectionCount / $TotalCollections) * 100)      # Using for progress bar
                 }
@@ -173,11 +176,13 @@ function Get-CMOrgModelDeploymentRules{
             Write-Host $_
         } finally {
             Set-Location $myPWD
+            $PSStyle.Progress.View = $myProgressView
         }
     }
 
     end{
         Set-Location $myPWD
+        $PSStyle.Progress.View = $myProgressView
         if($Json){
             return $output | ConvertTo-Json
         }else{
