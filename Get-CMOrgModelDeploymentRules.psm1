@@ -72,6 +72,7 @@ function Get-CMOrgModelDeploymentRules{
     param(
         [switch]$Json,
         [switch]$ISOnly,
+        [switch]$NoProgressBar,
         [string]$Prefix = $DEFAULT_PREFIX,
 		[string]$SiteCode=$DEFAULT_SITE_CODE,
 		[string]$Provider=$DEFAULT_PROVIDER,
@@ -95,11 +96,23 @@ function Get-CMOrgModelDeploymentRules{
             Write-Host "Getting all collections... (note: this takes a while)"
             $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
 
-            Write-Host "Getting Membership Rules..."
+            $TotalCollections = $DeployCollections.Count                                    # Using for progress bar
+            $PercentComplete = 0                                                            # Using for progress bar
+            $CollectionCount = 0                                                            # Using for progress bar
+            if($NoProgressBar){
+                Write-Host "Processing Membership Rules..."
+            }
             foreach($Collection in $DeployCollections){
+                if($NoProgressBar){
+                    Write-Host "Processing $($Collection.Name)..."
+                }else{
+                    Write-Progress -Activity "Processing Membership Rules..." -Status "$($PercentComplete)% Processing $($Collection.Name)..." -PercentComplete $PercentComplete
+                    $CollectionCount++                                                          # Using for progress bar
+                    $PercentComplete = [int](($CollectionCount / $TotalCollections) * 100)      # Using for progress bar
+                }
+
                 Write-Verbose "Initializing the Membership Rules array as empty"
                 $MembershipRules = $null
-                Write-Host "Processing $($Collection.Name)..."
                 Write-Verbose "Getting Direct Membership Rules for $($Collection.Name)..."
                 $DirectMembershipRules = Get-CMDeviceCollectionDirectMembershipRule -CollectionName $Collection.Name
                 Write-Verbose "Getting Exclude Membership Rules for $($Collection.Name)..."
@@ -116,7 +129,9 @@ function Get-CMOrgModelDeploymentRules{
                 
 
                 if($null -eq $AppDeployment){
-                    Write-Host "$($Collection.Name) has no App deployment, so skipping!"
+                    if($NoProgressBar){
+                        Write-Host "Skipping $($Collection.Name) because it has no App deployment"
+                    }
                 }else{
                     ## Install or Uninstall
                     Write-Verbose "Determining whether this is Install or Uninstall"
