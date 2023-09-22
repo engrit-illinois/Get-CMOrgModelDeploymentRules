@@ -1,7 +1,7 @@
 # Get-CMOrgModelDeploymentRules
 
 # Description
-This function queries all relevant deployment collections in Engineering IT's MECM environment so we know what apps are being deployed where.
+A documentation function which queries all relevant deployment collections in Engineering IT's MECM environment so we know what apps are being deployed where. Assumes you are using the [`New-CMOrgModelDeploymentCollection`](https://github.com/engrit-illinois/New-CMOrgModelDeploymentCollection) cmdlet to build your deployment collections.
 
 # Syntax
 ```powershell
