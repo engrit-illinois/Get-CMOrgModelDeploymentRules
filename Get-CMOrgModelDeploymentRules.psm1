@@ -86,6 +86,9 @@ function Get-CMOrgModelDeploymentRules{
             
             ## Declare the empty arraylist
             $output = New-Object System.Collections.ArrayList
+
+            $myPSStyle = $PSStyle.Progress.View
+            $PSStyle.Progress.View = 'Classic'
         } catch {
             Write-Host $_
         }
@@ -173,12 +176,14 @@ function Get-CMOrgModelDeploymentRules{
             Write-Host $_
         } finally {
             Write-Host "Operation Cancelled by User"
+            $PSStyle.Progress.View = $myPSStyle
             Set-Location $myPWD
         }
     }
 
     end{
         Write-Host "Done!"
+        $PSStyle.Progress.View = $myPSStyle
         Set-Location $myPWD
         if($Json){
             return $output | ConvertTo-Json
