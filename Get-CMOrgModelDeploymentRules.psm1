@@ -175,12 +175,14 @@ function Get-CMOrgModelDeploymentRules{
         } catch {
             Write-Host $_
         } finally {
+            Write-Host "Operation Cancelled by User"
             Set-Location $myPWD
             $PSStyle.Progress.View = $myProgressView
         }
     }
 
     end{
+        Write-Host "Done!"
         Set-Location $myPWD
         $PSStyle.Progress.View = $myProgressView
         if($Json){
