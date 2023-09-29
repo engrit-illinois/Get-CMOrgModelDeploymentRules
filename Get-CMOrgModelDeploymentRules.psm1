@@ -192,6 +192,7 @@ function Get-CMOrgModelDeploymentRules{
                     } else {
                         $MembershipRules = Build-ArrayObject -Collection $Collection -Application $Application -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                         Write-Verbose "Adding to the function output array."
+                        Write-Verbose ($MembershipRules | Format-List | Out-String)
                         $output.Add($MembershipRules) | Out-Null
                     }
                 }
