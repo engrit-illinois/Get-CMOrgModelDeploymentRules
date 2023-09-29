@@ -195,7 +195,6 @@ function Get-CMOrgModelDeploymentRules{
         } catch {
             Write-Host $_
         } finally {
-            Write-Host "Operation Cancelled by User"
             $PSStyle.Progress.View = $myPSStyle
             Set-Location $myPWD
         }
