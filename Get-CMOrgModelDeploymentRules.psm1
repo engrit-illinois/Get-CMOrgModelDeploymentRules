@@ -42,7 +42,7 @@ function Build-ArrayObject {
 
     Write-Verbose "Building comment array for $($Collection.Name)"
     $Comments = New-Object System.Collections.ArrayList
-    foreach($App in $Application){
+    foreach($App in @($Application)){
         $Comments.Add($App.LocalizedDescription)
     }
 
@@ -190,7 +190,7 @@ function Get-CMOrgModelDeploymentRules{
                         # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
                         Write-Verbose "ISOnly flag was declared, but no Include or Exclude membership rules were found on $($Collection.Name) referencing `"UIUC-ENGR-IS*`" collections."
                     } else {
-                        $MembershipRules = Build-ArrayObject -Collection $Collection -Application $Application -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        $MembershipRules = Build-ArrayObject -Collection $Collection -Application $Applications -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                         Write-Verbose "Adding to the function output array."
                         Write-Verbose ($MembershipRules | Format-List | Out-String)
                         $output.Add($MembershipRules) | Out-Null
