@@ -81,6 +81,7 @@ function Get-CMOrgModelDeploymentRules{
     param(
         [switch]$Json,
         [switch]$ISOnly,
+        [int]$Test,                                                                         # Shuffles then shrinks the array this runs on for faster testing
         [switch]$NoProgressBar,
         [string]$Prefix = $DEFAULT_PREFIX,
 		[string]$SiteCode=$DEFAULT_SITE_CODE,
@@ -108,6 +109,10 @@ function Get-CMOrgModelDeploymentRules{
             Write-Host "Getting all collections... (note: this takes a while)"
             $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
             $DeployCollections = $DeployCollections | Sort-Object -Property Name
+
+            if($Test){
+                $DeployCollections = $DeployCollections | Get-Random -Count $Test
+            }
 
             $TotalCollections = $DeployCollections.Count                                    # Using for progress bar
             $PercentComplete = 0                                                            # Using for progress bar
