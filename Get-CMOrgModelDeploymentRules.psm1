@@ -98,6 +98,7 @@ function Get-CMOrgModelDeploymentRules{
         try{
             Write-Host "Getting all collections... (note: this takes a while)"
             $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
+            $DeployCollections = $DeployCollections | Sort-Object -Property Name
 
             $TotalCollections = $DeployCollections.Count                                    # Using for progress bar
             $PercentComplete = 0                                                            # Using for progress bar
@@ -171,7 +172,7 @@ function Get-CMOrgModelDeploymentRules{
                     }
                 }
             }
-            $output = $output | Sort-Object -Property CollectionName
+            $output = $output
         } catch {
             Write-Host $_
         } finally {
