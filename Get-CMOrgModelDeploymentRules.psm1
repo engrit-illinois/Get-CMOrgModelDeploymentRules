@@ -43,7 +43,7 @@ function Build-ArrayObject {
     Write-Verbose "Building comment array for $($Collection.Name)"
     $Comments = New-Object System.Collections.ArrayList
     foreach($App in @($Application)){
-        $Comments.Add($App.LocalizedDescription)
+        $Comments.Add($App.LocalizedDescription) | Out-Null
     }
 
     Write-Verbose "Building the custom array for $($Collection.Name)..."
