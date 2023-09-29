@@ -197,7 +197,6 @@ function Get-CMOrgModelDeploymentRules{
                     }
                 }
             }
-            $output = $output
         } catch {
             Write-Host $_
         } finally {
