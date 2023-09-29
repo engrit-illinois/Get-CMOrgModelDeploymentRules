@@ -30,6 +30,7 @@ function Build-ArrayObject {
     [CmdletBinding()]
     param(
         $Collection,
+        $Application,
         $AppDeployment,
         $Action,
         $DirectMembershipRules,
@@ -38,6 +39,13 @@ function Build-ArrayObject {
         $QueryMembershipRules,
         $DeploymentType
     )
+
+    Write-Verbose "Building comment array for $($Collection.Name)"
+    $Comments = New-Object System.Collections.ArrayList
+    foreach($App in $Application){
+        $Comments.Add($App.LocalizedDescription)
+    }
+
     Write-Verbose "Building the custom array for $($Collection.Name)..."
     Write-Verbose "Name = $($AppDeployment.ApplicationName)"
     Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
@@ -48,7 +56,7 @@ function Build-ArrayObject {
     Write-Verbose "QueryMembershipRules = $($QueryMembershipRules.RuleName)"
     Write-Verbose "DeploymentType = $DeploymentType"
     Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
-    
+    Write-Verbose "Comments = $($Comments)"
     ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
     $output = [PSCustomObject]@{
         CollectionName              = $Collection.Name
@@ -62,6 +70,7 @@ function Build-ArrayObject {
         QueryMembershipRules        = $QueryMembershipRules.RuleName
         DeploymentType              = $DeploymentType
         Supersedence                = $AppDeployment.UpdateSupersedence
+        Comments                    = $Comments
     }
     $output
 }
@@ -137,6 +146,16 @@ function Get-CMOrgModelDeploymentRules{
                         Write-Host "Skipping $($Collection.Name) because it has no App deployment"
                     }
                 }else{
+                    Write-Verbose "Getting Application info..."
+                    Write-Verbose "Initializing the empty Applications array"
+                    $Applications = New-Object System.Collections.ArrayList
+                    foreach($AppD in $AppDeployment){
+                        Write-Verbose "Getting Application info for $($AppD.ApplicationName)"
+                        $Application = Get-CMApplication -Fast -Name $AppD.ApplicationName
+                        Write-Verbose "Adding to the Applications array."
+                        $Applications.Add($Application) | Out-Null
+                    }
+
                     ## Install or Uninstall
                     Write-Verbose "Determining whether this is Install or Uninstall"
                     switch($DeploySummary.DesiredConfigType){
@@ -166,7 +185,7 @@ function Get-CMOrgModelDeploymentRules{
                         # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
                         Write-Verbose "ISOnly flag was declared, but no Include or Exclude membership rules were found on $($Collection.Name) referencing `"UIUC-ENGR-IS*`" collections."
                     } else {
-                        $MembershipRules = Build-ArrayObject -Collection $Collection -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        $MembershipRules = Build-ArrayObject -Collection $Collection -Application $Application -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
                         Write-Verbose "Adding to the function output array."
                         $output.Add($MembershipRules) | Out-Null
                     }
