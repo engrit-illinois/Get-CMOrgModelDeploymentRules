@@ -207,8 +207,8 @@ function Get-CMOrgModelDeploymentRules{
 
     end{
         Write-Host "Done!"
-        $PSStyle.Progress.View = $myPSStyle
-        Set-Location $myPWD
+        #$PSStyle.Progress.View = $myPSStyle
+        #Set-Location $myPWD
         if($Json){
             return $output | ConvertTo-Json
         }else{
