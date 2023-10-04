@@ -63,18 +63,20 @@ function Build-ArrayObject {
     Write-Verbose "Comments = $($Comments)"
     ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
     $output = [PSCustomObject]@{
-        CollectionName              = $Collection.Name
-        Name                        = $AppDeployment.ApplicationName
+        CollectionName                  = $Collection.Name
+        Name                            = $AppDeployment.ApplicationName
         ### Lazy hack to account for us not being on GMT
-        DeploymentStartTime         = $AppDeployment.StartTime.AddHours(5)
-        Action                      = $Action
-        DirectMembershipRules       = $DirectMembershipRules.RuleName
-        ExcludeMembershipRules      = $ExcludeMembershipRules.RuleName
-        IncludeMembershipRules      = $IncludeMembershipRules.RuleName
-        QueryMembershipRules        = $QueryMembershipRules.RuleName
-        DeploymentType              = $DeploymentType
-        Supersedence                = $AppDeployment.UpdateSupersedence
-        Comments                    = $Comments
+        DeploymentStartTime             = $AppDeployment.StartTime.AddHours(5)
+        Action                          = $Action
+        DirectMembershipRules           = $DirectMembershipRules.RuleName
+        ExcludeMembershipRules          = $ExcludeMembershipRules.RuleName
+        IncludeMembershipRules          = $IncludeMembershipRules.RuleName
+        QueryMembershipRules            = $QueryMembershipRules.RuleName
+        OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
+        RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
+        DeploymentType                  = $DeploymentType
+        Supersedence                    = $AppDeployment.UpdateSupersedence
+        Comments                        = $Comments
     }
     $output
 }
