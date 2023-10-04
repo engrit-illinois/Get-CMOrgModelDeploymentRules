@@ -40,10 +40,14 @@ function Build-ArrayObject {
         $DeploymentType
     )
 
-    Write-Verbose "Building comment array for $($Collection.Name)"
-    $Comments = New-Object System.Collections.ArrayList
-    foreach($App in @($Application)){
-        $Comments.Add($App.LocalizedDescription) | Out-Null
+    if($Application.Count -le 1){
+        $Comments = $Application.LocalizedDescription
+    }else{
+        Write-Verbose "Building comment array for $($Collection.Name)"
+        $Comments = New-Object System.Collections.ArrayList
+        foreach($App in @($Application)){
+            $Comments.Add($App.LocalizedDescription) | Out-Null
+        }
     }
 
     Write-Verbose "Building the custom array for $($Collection.Name)..."
