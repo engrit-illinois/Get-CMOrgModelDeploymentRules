@@ -25,6 +25,40 @@ function Connect-ToMECM {
     Write-Host "Done prepping connection to MECM."
 }
 
+function Resolve-ImplicitUninstall {
+    # Adapted from https://www.alkanesolutions.co.uk/2022/09/20/use-powershell-to-calculate-bit-flags/?doing_wp_cron=1696459713.4683570861816406250000
+
+    param(
+        $ApplicationDeployment
+    )
+
+    [flags()] 
+    enum SMS_ApplicationAssignment_OfferFlags
+    {
+        None    = 0
+        PREDEPLOY = 1
+        ONDEMAND = 2
+        ENABLEPROCESSTERMINATION = 4
+        ALLOWUSERSTOREPAIRAPP = 8
+        RELATIVESCHEDULE = 16
+        HIGHIMPACTDEPLOYMENT = 32
+        IMPLICITUNINSTALL = 64
+    }
+
+    $OfferFlags = $ApplicationDeployment.OfferFlags
+
+    [SMS_ApplicationAssignment_OfferFlags]$assignmentFlags = $offerFlags
+
+    Write-Verbose "Checking if the app has implicit uninstall enabled"
+    if ($assignmentFlags.HasFlag([SMS_ApplicationAssignment_OfferFlags]::IMPLICITUNINSTALL)) {
+        Write-Verbose "Implicit uninstall was enabled"
+        return $true
+    }else{
+        Write-Verbose "Implicit uninstall was disabled"
+        return $false
+    }
+}
+
 function Build-ArrayObject {
     
     [CmdletBinding()]
@@ -50,6 +84,8 @@ function Build-ArrayObject {
         }
     }
 
+    $ImplicitUninstall = Resolve-ImplicitUninstall -ApplicationDeployment $AppDeployment
+
     Write-Verbose "Building the custom array for $($Collection.Name)..."
     Write-Verbose "Name = $($AppDeployment.ApplicationName)"
     Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
@@ -62,6 +98,7 @@ function Build-ArrayObject {
     Write-Verbose "RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows"
     Write-Verbose "DeploymentType = $DeploymentType"
     Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
+    Write-Verbose "ImplicitUninstall = $ImplicitUninstall"
     Write-Verbose "Comments = $($Comments)"
     ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
     $output = [PSCustomObject]@{
@@ -78,6 +115,7 @@ function Build-ArrayObject {
         RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
         DeploymentType                  = $DeploymentType
         Supersedence                    = $AppDeployment.UpdateSupersedence
+        ImplicitUninstall               = $ImplicitUninstall
         Comments                        = $Comments
     }
     $output
