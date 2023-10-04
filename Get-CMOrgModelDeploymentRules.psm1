@@ -58,6 +58,8 @@ function Build-ArrayObject {
     Write-Verbose "ExcludeMembershipRules = $($ExcludeMembershipRules.RuleName)"
     Write-Verbose "IncludeMembershipRules = $($IncludeMembershipRules.RuleName)"
     Write-Verbose "QueryMembershipRules = $($QueryMembershipRules.RuleName)"
+    Write-Verbose "OverrideServiceWindows = $AppDeployment.OverrideServiceWindows"
+    Write-Verbose "RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows"
     Write-Verbose "DeploymentType = $DeploymentType"
     Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
     Write-Verbose "Comments = $($Comments)"
