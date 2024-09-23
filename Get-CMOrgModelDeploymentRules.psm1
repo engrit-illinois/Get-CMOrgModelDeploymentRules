@@ -127,7 +127,7 @@ function Get-CMOrgModelDeploymentRules{
     param(
         [switch]$Json,
         [switch]$ISOnly,
-        [int]$Test,                                                                         # Shuffles then shrinks the array this runs on for faster testing
+        $Test,                                                                         # Shuffles then shrinks the array this runs on for faster testing
         [switch]$NoProgressBar,
         [string]$Prefix = $DEFAULT_PREFIX,
 		[string]$SiteCode=$DEFAULT_SITE_CODE,
@@ -145,6 +145,12 @@ function Get-CMOrgModelDeploymentRules{
 
             $myPSStyle = $PSStyle.Progress.View
             $PSStyle.Progress.View = 'Classic'
+
+            if($Test){
+                $TestType = $Test.GetType()
+                Write-Verbose "Test type is $TestType"
+            }
+            
         } catch {
             Write-Host $_
         }
@@ -153,10 +159,14 @@ function Get-CMOrgModelDeploymentRules{
     process{
         try{
             Write-Host "Getting all collections... (note: this takes a while)"
-            $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
-            $DeployCollections = $DeployCollections | Sort-Object -Property Name
+            if($Test -and ($TestType -like "*string*")){
+                $DeployCollections = Get-CMDeviceCollection -Name $Test
+            } else {
+                $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
+                $DeployCollections = $DeployCollections | Sort-Object -Property Name
+            }
 
-            if($Test){
+            if($Test -and ($TestType -like "Int*")){
                 $DeployCollections = $DeployCollections | Get-Random -Count $Test
             }
 
