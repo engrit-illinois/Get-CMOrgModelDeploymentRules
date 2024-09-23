@@ -59,6 +59,35 @@ function Resolve-ImplicitUninstall {
     }
 }
 
+function Optimize-IfSame {
+    [CmdletBinding()]
+    param(
+        [parameter(ValueFromPipeline)]
+        [Array] $InputObject
+    )
+
+    process {
+        Write-Verbose "Dealing with an array of size $($InputObject.Count)"
+        $Initial = $InputObject[0]
+        Write-Verbose "First object is $Initial"
+        $AllSame = $true
+        foreach($Item in $InputObject){
+            Write-Verbose "Checking if $Item is the same as $Initial"
+            if($Item -ne $Initial){
+                $AllSame = $false
+            }
+        }
+        Write-Verbose "All of the objects in array are the same: $AllSame"
+    }
+    end{
+        if($AllSame -eq $true){
+            return $Initial
+        } else {
+            return $InputObject
+        }
+    }
+}
+
 function Build-ArrayObject {
     
     [CmdletBinding()]
@@ -114,7 +143,7 @@ function Build-ArrayObject {
         OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
         RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
         DeploymentType                  = $DeploymentType
-        Supersedence                    = $AppDeployment.UpdateSupersedence
+        Supersedence                    = ,$AppDeployment.UpdateSupersedence | Optimize-IfSame
         ImplicitUninstall               = $ImplicitUninstall
         Comments                        = $Comments
     }
