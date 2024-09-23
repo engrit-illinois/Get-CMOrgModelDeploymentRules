@@ -59,7 +59,7 @@ function Resolve-ImplicitUninstall {
     }
 }
 
-function Optimize-IfSame {
+function Reduce-IfSame {
     [CmdletBinding()]
     param(
         [parameter(ValueFromPipeline)]
@@ -143,7 +143,7 @@ function Build-ArrayObject {
         OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
         RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
         DeploymentType                  = $DeploymentType
-        Supersedence                    = ,$AppDeployment.UpdateSupersedence | Optimize-IfSame
+        Supersedence                    = ,$AppDeployment.UpdateSupersedence | Reduce-IfSame
         ImplicitUninstall               = $ImplicitUninstall
         Comments                        = $Comments
     }
