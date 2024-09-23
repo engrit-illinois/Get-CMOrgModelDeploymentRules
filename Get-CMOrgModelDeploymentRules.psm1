@@ -115,6 +115,12 @@ function Build-ArrayObject {
 
     $ImplicitUninstall = Resolve-ImplicitUninstall -ApplicationDeployment $AppDeployment
 
+    if($AppDeployment.UpdateSupersedence.Count -gt 1){
+        $SuperSedence = ,$AppDeployment.UpdateSupersedence | Reduce-IfSame
+    } else {
+        $SuperSedence = $AppDeployment.UpdateSupersedence
+    }
+
     Write-Verbose "Building the custom array for $($Collection.Name)..."
     Write-Verbose "Name = $($AppDeployment.ApplicationName)"
     Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
@@ -143,7 +149,7 @@ function Build-ArrayObject {
         OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
         RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
         DeploymentType                  = $DeploymentType
-        Supersedence                    = ,$AppDeployment.UpdateSupersedence | Reduce-IfSame
+        Supersedence                    = $SuperSedence
         ImplicitUninstall               = $ImplicitUninstall
         Comments                        = $Comments
     }
