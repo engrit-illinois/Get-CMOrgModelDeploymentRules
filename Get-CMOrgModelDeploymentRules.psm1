@@ -78,39 +78,39 @@ function Build-ArrayObject {
 	
 	# Certain fields may be arrays of values, if the collection has multiple deployments.
 	# Save a formatted version of those which are more readable after being JSON-ified:
-	if($IncludeMembershipRules.RuleName) {
+	if($null -ne $IncludeMembershipRules.RuleName) {
 		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules.RuleName -join " \\🔹")
 	}
 	
-	if($AppDeployment.ApplicationName) {
+	if($null -ne $AppDeployment.ApplicationName) {
 		$NameFormatted = "🔹" + ($AppDeployment.ApplicationName -join " \\🔹")
 	}
 	
-	if($Action) {
+	if($null -ne $Action) {
 		$ActionFormatted = $Action -join " \\"
 		$ActionFormatted = $ActionFormatted.Replace("INSTALL","✔️INSTALL")
 		$ActionFormatted = $ActionFormatted.Replace("UNINSTALL","❌UNINSTALL")
 	}
 	
-	if($Application.LocalizedDescription) {
+	if($null -ne $Application.LocalizedDescription) {
 		$CommentsFormatted = "🔹" + ($Application.LocalizedDescription -join " \\🔹")
 	}
 	
-	if($Purpose) {
+	if($null -ne $Purpose) {
 		$PurposeFormatted = $Purpose -join " \\"
 		$PurposeFormatted = $PurposeFormatted.Replace("AVAILABLE","💡AVAILABLE")
 		$PurposeFormatted = $PurposeFormatted.Replace("REQUIRED","🔒REQUIRED")
 	}
 	
-	if($AppDeployment.UpdateSupersedence) {
+	if($null -ne $AppDeployment.UpdateSupersedence) {
 		$SupersedenceFormatted = $AppDeployment.UpdateSupersedence -join " \\"
-		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","✔️True")
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","✔True")
 		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","❌False")
 	}
 	
-	if($ImplicitUninstall) {
+	if($null -ne $ImplicitUninstall) {
 		$ImplicitUninstallFormatted = $ImplicitUninstall -join " \\"
-		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","👍True")
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","✔True")
 		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","❌False")
 	}
 
