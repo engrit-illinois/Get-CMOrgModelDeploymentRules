@@ -79,7 +79,7 @@ function Build-ArrayObject {
 	# Certain fields may be arrays of values, if the collection has multiple deployments.
 	# Save a formatted version of those which are more readable after being JSON-ified:
 	if($null -ne $IncludeMembershipRules.RuleName) {
-		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules.RuleName -join " \\🔹")
+		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules -join " \\🔹")
 	}
 	
 	if($null -ne $AppDeployment.ApplicationName) {
@@ -120,12 +120,12 @@ function Build-ArrayObject {
     Write-Verbose "Name = $($AppDeployment.ApplicationName)"
     Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
     Write-Verbose "Action = $Action"
-    Write-Verbose "DirectMembershipRules = $($DirectMembershipRules.RuleName)"
-    Write-Verbose "ExcludeMembershipRules = $($ExcludeMembershipRules.RuleName)"
-    Write-Verbose "IncludeMembershipRules = $($IncludeMembershipRules.RuleName)"
-    Write-Verbose "QueryMembershipRules = $($QueryMembershipRules.RuleName)"
     Write-Verbose "OverrideServiceWindows = $AppDeployment.OverrideServiceWindows"
     Write-Verbose "RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows"
+    Write-Verbose "DirectMembershipRules = $DirectMembershipRules"
+    Write-Verbose "ExcludeMembershipRules = $ExcludeMembershipRules"
+    Write-Verbose "IncludeMembershipRules = $IncludeMembershipRules"
+    Write-Verbose "QueryMembershipRules = $QueryMembershipRules"
     Write-Verbose "Purpose = $Purpose"
     Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
     Write-Verbose "ImplicitUninstall = $ImplicitUninstall"
@@ -140,11 +140,10 @@ function Build-ArrayObject {
         DeploymentStartTime             = $AppDeployment.StartTime.AddHours(5)
         Action                          = $Action
 		ActionFormatted                 = $ActionFormatted
-        DirectMembershipRules           = $DirectMembershipRules.RuleName
-        ExcludeMembershipRules          = $ExcludeMembershipRules.RuleName
-        IncludeMembershipRules          = $IncludeMembershipRules.RuleName
+        DirectMembershipRules           = $DirectMembershipRules
+        ExcludeMembershipRules          = $ExcludeMembershipRules
+        IncludeMembershipRules          = $IncludeMembershipRules
 		IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted
-        QueryMembershipRules            = $QueryMembershipRules.RuleName
         OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
         RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
         Purpose                         = $Purpose
@@ -225,13 +224,13 @@ function Get-CMOrgModelDeploymentRules{
                 Write-Verbose "Initializing the Membership Rules array as empty"
                 $MembershipRules = $null
                 Write-Verbose "Getting Direct Membership Rules for $($Collection.Name)..."
-                $DirectMembershipRules = Get-CMDeviceCollectionDirectMembershipRule -CollectionName $Collection.Name
+                $DirectMembershipRules = (Get-CMDeviceCollectionDirectMembershipRule -CollectionName $Collection.Name).RuleName
                 Write-Verbose "Getting Exclude Membership Rules for $($Collection.Name)..."
-                $ExcludeMembershipRules = Get-CMDeviceCollectionExcludeMembershipRule -CollectionName $Collection.Name
+                $ExcludeMembershipRules = (Get-CMDeviceCollectionExcludeMembershipRule -CollectionName $Collection.Name).RuleName
                 Write-Verbose "Getting Include Membership Rules for $($Collection.Name)..."
-                $IncludeMembershipRules = Get-CMDeviceCollectionIncludeMembershipRule -CollectionName $Collection.Name
+                $IncludeMembershipRules = (Get-CMDeviceCollectionIncludeMembershipRule -CollectionName $Collection.Name).RuleName
                 Write-Verbose "Getting Query Membership Rules for $($Collection.Name)..."
-                $QueryMembershipRules = Get-CMDeviceCollectionQueryMembershipRule -CollectionName $Collection.Name
+                $QueryMembershipRules = (Get-CMDeviceCollectionQueryMembershipRule -CollectionName $Collection.Name).RuleName
                 
                 Write-Verbose "Getting the Application Deployment for $($Collection.Name)..."
                 $AppDeployment = Get-CMApplicationDeployment -Collection $Collection
