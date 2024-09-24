@@ -88,8 +88,8 @@ function Build-ArrayObject {
 	
 	if($null -ne $Action) {
 		$ActionFormatted = $Action -join " \\"
-		$ActionFormatted = $ActionFormatted.Replace("INSTALL","✔️INSTALL")
-		$ActionFormatted = $ActionFormatted.Replace("UNINSTALL","❌UNINSTALL")
+		$ActionFormatted = $ActionFormatted.Replace("INSTALL","📦INSTALL")
+		$ActionFormatted = $ActionFormatted.Replace("UNINSTALL","🗑️UNINSTALL")
 	}
 	
 	if($null -ne $Application.LocalizedDescription) {
@@ -106,14 +106,14 @@ function Build-ArrayObject {
 	
 	if($null -ne $AppDeployment.UpdateSupersedence) {
 		$SupersedenceFormatted = $AppDeployment.UpdateSupersedence -join " \\"
-		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","✔️Yes Supersedence")
-		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","❌No Supersedence")
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","👑✔️Enabled")
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","👑❌Disabled")
 	}
 	
 	if($null -ne $ImplicitUninstall) {
 		$ImplicitUninstallFormatted = $ImplicitUninstall -join " \\"
-		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","✔️Implicit")
-		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","❌Not Implicit")
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","🚮Implicit")
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","🚯Not Implicit")
 	}
 
     $CollectionName = $Collection.Name
