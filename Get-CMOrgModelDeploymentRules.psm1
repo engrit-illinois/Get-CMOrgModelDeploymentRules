@@ -106,14 +106,14 @@ function Build-ArrayObject {
 	
 	if($null -ne $AppDeployment.UpdateSupersedence) {
 		$SupersedenceFormatted = $AppDeployment.UpdateSupersedence -join " \\"
-		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","✔️True")
-		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","❌False")
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","✔️Supersedes")
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","❌No Supersedence")
 	}
 	
 	if($null -ne $ImplicitUninstall) {
 		$ImplicitUninstallFormatted = $ImplicitUninstall -join " \\"
-		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","✔️True")
-		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","❌False")
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","✔️Implicit")
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","❌Not Implicit")
 	}
 
     $CollectionName = $Collection.Name
