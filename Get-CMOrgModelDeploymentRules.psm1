@@ -116,43 +116,59 @@ function Build-ArrayObject {
 		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","❌False")
 	}
 
-    Write-Verbose "Building the custom array for $($Collection.Name)..."
-    Write-Verbose "Name = $($AppDeployment.ApplicationName)"
-    Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
+    $CollectionName = $Collection.Name
+    $Name = $AppDeployment.ApplicationName
+    ### Lazy hack to account for us not being on GMT
+    $DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))
+    $OverrideServiceWindows = $AppDeployment.OverrideServiceWindows
+    $RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows
+    $Supersedence = $AppDeployment.UpdateSupersedence
+    $Comments = $Application.LocalizedDescription
+
+    Write-Verbose "Building the custom array for $CollectionName..."
+    Write-Verbose "Name = $Name"
+    Write-Verbose "NameFormatted = $NameFormatted"
+    Write-Verbose "DeploymentStartTime = $DeploymentStartTime"
     Write-Verbose "Action = $Action"
-    Write-Verbose "OverrideServiceWindows = $AppDeployment.OverrideServiceWindows"
-    Write-Verbose "RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows"
+    Write-Verbose "ActionFormatted = $ActionFormatted"
     Write-Verbose "DirectMembershipRules = $DirectMembershipRules"
     Write-Verbose "ExcludeMembershipRules = $ExcludeMembershipRules"
     Write-Verbose "IncludeMembershipRules = $IncludeMembershipRules"
+    Write-Verbose "IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted"
     Write-Verbose "QueryMembershipRules = $QueryMembershipRules"
+    Write-Verbose "OverrideServiceWindows = $OverrideServiceWindows"
+    Write-Verbose "RebootOutsideOfServiceWindows = $RebootOutsideOfServiceWindows"
     Write-Verbose "Purpose = $Purpose"
-    Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
+    Write-Verbose "PurposeFormatted = $PurposeFormatted"
+    Write-Verbose "Supersedence = $Supersedence"
+    Write-Verbose "SupersedenceFormatted = $SupersedenceFormatted"
     Write-Verbose "ImplicitUninstall = $ImplicitUninstall"
-    Write-Verbose "Comments = $($Comments)"
+    Write-Verbose "ImplicitUninstallFormatted = $ImplicitUninstallFormatted"
+    Write-Verbose "Comments = $Comments"
+    Write-Verbose "CommentsFormatted = $CommentsFormatted"
 	
     ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
     [PSCustomObject]@{
-        CollectionName                  = $Collection.Name
-        Name                            = $AppDeployment.ApplicationName
+        CollectionName                  = $CollectionName
+        Name                            = $Name
 		NameFormatted                   = $NameFormatted
-        ### Lazy hack to account for us not being on GMT
-        DeploymentStartTime             = $AppDeployment.StartTime.AddHours(5)
+        DeploymentStartTime             = $DeploymentStartTime
         Action                          = $Action
 		ActionFormatted                 = $ActionFormatted
         DirectMembershipRules           = $DirectMembershipRules
         ExcludeMembershipRules          = $ExcludeMembershipRules
         IncludeMembershipRules          = $IncludeMembershipRules
 		IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted
-        OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
-        RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
+        QueryMembershipRules            = $QueryMembershipRules
+        OverrideServiceWindows          = $OverrideServiceWindows
+        RebootOutsideOfServiceWindows   = $RebootOutsideOfServiceWindows
         Purpose                         = $Purpose
 		PurposeFormatted                = $PurposeFormatted
-        Supersedence                    = $AppDeployment.UpdateSupersedence
+        Supersedence                    = $Supersedence
 		SupersedenceFormatted           = $SupersedenceFormatted
         ImplicitUninstall               = $ImplicitUninstall
 		ImplicitUninstallFormatted      = $ImplicitUninstallFormatted
-        Comments                        = $Application.LocalizedDescription
+        Comments                        = $Comments
 		CommentsFormatted               = $CommentsFormatted
     }
 }
