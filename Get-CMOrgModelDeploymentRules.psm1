@@ -199,9 +199,8 @@ function Get-CMOrgModelDeploymentRules{
             if($Test -and ($TestType -like "*string*")){
                 $DeployCollections = Get-CMDeviceCollection -Name $Test
             } else {
-                #$DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
-				$DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*")
-                $DeployCollections = $DeployCollections | Sort-Object -Property Name
+                $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
+				$DeployCollections = $DeployCollections | Sort-Object -Property Name
             }
 
             if($Test -and ($TestType -like "Int*")){
