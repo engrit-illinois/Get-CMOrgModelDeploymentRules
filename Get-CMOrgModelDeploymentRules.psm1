@@ -93,7 +93,9 @@ function Build-ArrayObject {
 	}
 	
 	if($null -ne $Application.LocalizedDescription) {
-		$CommentsFormatted = "🔹" + ($Application.LocalizedDescription -join " \\🔹")
+		if($Application.LocalizedDescription -ne "") {
+			$CommentsFormatted = "🔹" + ($Application.LocalizedDescription -join " \\🔹")
+		}
 	}
 	
 	if($null -ne $Purpose) {
