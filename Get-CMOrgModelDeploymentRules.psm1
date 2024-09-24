@@ -88,7 +88,7 @@ function Build-ArrayObject {
 	
 	if($null -ne $Action) {
 		$ActionFormatted = $Action -join " \\"
-		$ActionFormatted = $ActionFormatted.Replace("INSTALL","📦INSTALL")
+		$ActionFormatted = $ActionFormatted.Replace("INSTALL","💾INSTALL")
 		$ActionFormatted = $ActionFormatted.Replace("UNINSTALL","🗑️UNINSTALL")
 	}
 	
