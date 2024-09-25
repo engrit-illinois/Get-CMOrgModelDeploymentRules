@@ -44,48 +44,19 @@ function Resolve-ImplicitUninstall {
         HIGHIMPACTDEPLOYMENT = 32
         IMPLICITUNINSTALL = 64
     }
+	
+	$ApplicationDeployment | ForEach-Object {
+		[SMS_ApplicationAssignment_OfferFlags]$assignmentFlags = $_.OfferFlags
 
-    $OfferFlags = $ApplicationDeployment.OfferFlags
-
-    [SMS_ApplicationAssignment_OfferFlags]$assignmentFlags = $offerFlags
-
-    Write-Verbose "Checking if the app has implicit uninstall enabled"
-    if ($assignmentFlags.HasFlag([SMS_ApplicationAssignment_OfferFlags]::IMPLICITUNINSTALL)) {
-        Write-Verbose "Implicit uninstall was enabled"
-        return $true
-    }else{
-        Write-Verbose "Implicit uninstall was disabled"
-        return $false
-    }
-}
-
-function Reduce-IfSame {
-    [CmdletBinding()]
-    param(
-        [parameter(ValueFromPipeline)]
-        [Array] $InputObject
-    )
-
-    process {
-        Write-Verbose "Dealing with an array of size $($InputObject.Count)"
-        $Initial = $InputObject[0]
-        Write-Verbose "First object is $Initial"
-        $AllSame = $true
-        foreach($Item in $InputObject){
-            Write-Verbose "Checking if $Item is the same as $Initial"
-            if($Item -ne $Initial){
-                $AllSame = $false
-            }
-        }
-        Write-Verbose "All of the objects in array are the same: $AllSame"
-    }
-    end{
-        if($AllSame -eq $true){
-            return $Initial
-        } else {
-            return $InputObject
-        }
-    }
+		Write-Verbose "Checking if the app has implicit uninstall enabled"
+		if ($assignmentFlags.HasFlag([SMS_ApplicationAssignment_OfferFlags]::IMPLICITUNINSTALL)) {
+			Write-Verbose "Implicit uninstall was enabled"
+			return $true
+		}else{
+			Write-Verbose "Implicit uninstall was disabled"
+			return $false
+		}
+	}
 }
 
 function Build-ArrayObject {
@@ -100,60 +71,108 @@ function Build-ArrayObject {
         $ExcludeMembershipRules,
         $IncludeMembershipRules,
         $QueryMembershipRules,
-        $DeploymentType
+        $Purpose
     )
 
-    if($Application.Count -le 1){
-        $Comments = $Application.LocalizedDescription
-    }else{
-        Write-Verbose "Building comment array for $($Collection.Name)"
-        $Comments = New-Object System.Collections.ArrayList
-        foreach($App in @($Application)){
-            $Comments.Add($App.LocalizedDescription) | Out-Null
-        }
-    }
+    $CollectionName = $Collection.Name
+    $Name = $AppDeployment.ApplicationName
+    $OverrideServiceWindows = $AppDeployment.OverrideServiceWindows
+    $RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows
+    $Supersedence = $AppDeployment.UpdateSupersedence
+    $Comments = $Application.LocalizedDescription
+	
+	### Lazy hack to account for us not being on GMT
+    $DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))
+    
+	# Translate OfferFlags to determine whether Implicit Uninstall is enabled
+	$ImplicitUninstall = Resolve-ImplicitUninstall -ApplicationDeployment $AppDeployment
+	
+	# Certain fields may be arrays of values, if the collection has multiple deployments.
+	# Save a formatted version of those which are more readable after being JSON-ified:
+	if($null -ne $IncludeMembershipRules) {
+		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules -join " \\🔹")
+	}
+	
+	if($null -ne $Name) {
+		$NameFormatted = "🔹" + ($Name -join " \\🔹")
+	}
+	
+	if($null -ne $Action) {
+		$ActionFormatted = $Action -join " \\"
+		$ActionFormatted = $ActionFormatted.Replace("INSTALL","💾INSTALL")
+		$ActionFormatted = $ActionFormatted.Replace("UNINSTALL","🗑️UNINSTALL")
+	}
+	
+	if($null -ne $Comments) {
+		if($Comments -ne "") {
+			$CommentsFormatted = "🔹" + ($Comments -join " \\🔹")
+		}
+	}
+	
+	if($null -ne $Purpose) {
+		$PurposeFormatted = $Purpose -join " \\"
+		$PurposeFormatted = $PurposeFormatted.Replace("AVAILABLE","💡AVAILABLE")
+		$PurposeFormatted = $PurposeFormatted.Replace("REQUIRED","🔒REQUIRED")
+	}
+	
+	if($null -ne $Supersedence) {
+		$SupersedenceFormatted = $Supersedence -join " \\"
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","👑✔️Enabled")
+		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","👑❌Disabled")
+	}
+	
+	if($null -ne $ImplicitUninstall) {
+		$ImplicitUninstallFormatted = $ImplicitUninstall -join " \\"
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","🚮Implicit")
+		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","🚯Not Implicit")
+	}
 
-    $ImplicitUninstall = Resolve-ImplicitUninstall -ApplicationDeployment $AppDeployment
-
-    if($AppDeployment.UpdateSupersedence.Count -gt 1){
-        $SuperSedence = ,$AppDeployment.UpdateSupersedence | Reduce-IfSame
-    } else {
-        $SuperSedence = $AppDeployment.UpdateSupersedence
-    }
-
-    Write-Verbose "Building the custom array for $($Collection.Name)..."
-    Write-Verbose "Name = $($AppDeployment.ApplicationName)"
-    Write-Verbose "DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))"
+    Write-Verbose "Building the custom array for $CollectionName..."
+    Write-Verbose "Name = $Name"
+    Write-Verbose "NameFormatted = $NameFormatted"
+    Write-Verbose "DeploymentStartTime = $DeploymentStartTime"
     Write-Verbose "Action = $Action"
-    Write-Verbose "DirectMembershipRules = $($DirectMembershipRules.RuleName)"
-    Write-Verbose "ExcludeMembershipRules = $($ExcludeMembershipRules.RuleName)"
-    Write-Verbose "IncludeMembershipRules = $($IncludeMembershipRules.RuleName)"
-    Write-Verbose "QueryMembershipRules = $($QueryMembershipRules.RuleName)"
-    Write-Verbose "OverrideServiceWindows = $AppDeployment.OverrideServiceWindows"
-    Write-Verbose "RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows"
-    Write-Verbose "DeploymentType = $DeploymentType"
-    Write-Verbose "Supersedence = $($AppDeployment.UpdateSupersedence)"
+    Write-Verbose "ActionFormatted = $ActionFormatted"
+    Write-Verbose "DirectMembershipRules = $DirectMembershipRules"
+    Write-Verbose "ExcludeMembershipRules = $ExcludeMembershipRules"
+    Write-Verbose "IncludeMembershipRules = $IncludeMembershipRules"
+    Write-Verbose "IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted"
+    Write-Verbose "QueryMembershipRules = $QueryMembershipRules"
+    Write-Verbose "OverrideServiceWindows = $OverrideServiceWindows"
+    Write-Verbose "RebootOutsideOfServiceWindows = $RebootOutsideOfServiceWindows"
+    Write-Verbose "Purpose = $Purpose"
+    Write-Verbose "PurposeFormatted = $PurposeFormatted"
+    Write-Verbose "Supersedence = $Supersedence"
+    Write-Verbose "SupersedenceFormatted = $SupersedenceFormatted"
     Write-Verbose "ImplicitUninstall = $ImplicitUninstall"
-    Write-Verbose "Comments = $($Comments)"
+    Write-Verbose "ImplicitUninstallFormatted = $ImplicitUninstallFormatted"
+    Write-Verbose "Comments = $Comments"
+    Write-Verbose "CommentsFormatted = $CommentsFormatted"
+	
     ## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
-    $output = [PSCustomObject]@{
-        CollectionName                  = $Collection.Name
-        Name                            = $AppDeployment.ApplicationName
-        ### Lazy hack to account for us not being on GMT
-        DeploymentStartTime             = $AppDeployment.StartTime.AddHours(5)
+    [PSCustomObject]@{
+        CollectionName                  = $CollectionName
+        Name                            = $Name
+		NameFormatted                   = $NameFormatted
+        DeploymentStartTime             = $DeploymentStartTime
         Action                          = $Action
-        DirectMembershipRules           = $DirectMembershipRules.RuleName
-        ExcludeMembershipRules          = $ExcludeMembershipRules.RuleName
-        IncludeMembershipRules          = $IncludeMembershipRules.RuleName
-        QueryMembershipRules            = $QueryMembershipRules.RuleName
-        OverrideServiceWindows          = $AppDeployment.OverrideServiceWindows
-        RebootOutsideOfServiceWindows   = $AppDeployment.RebootOutsideOfServiceWindows
-        DeploymentType                  = $DeploymentType
-        Supersedence                    = $SuperSedence
+		ActionFormatted                 = $ActionFormatted
+        DirectMembershipRules           = $DirectMembershipRules
+        ExcludeMembershipRules          = $ExcludeMembershipRules
+        IncludeMembershipRules          = $IncludeMembershipRules
+		IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted
+        QueryMembershipRules            = $QueryMembershipRules
+        OverrideServiceWindows          = $OverrideServiceWindows
+        RebootOutsideOfServiceWindows   = $RebootOutsideOfServiceWindows
+        Purpose                         = $Purpose
+		PurposeFormatted                = $PurposeFormatted
+        Supersedence                    = $Supersedence
+		SupersedenceFormatted           = $SupersedenceFormatted
         ImplicitUninstall               = $ImplicitUninstall
+		ImplicitUninstallFormatted      = $ImplicitUninstallFormatted
         Comments                        = $Comments
+		CommentsFormatted               = $CommentsFormatted
     }
-    $output
 }
 
 function Get-CMOrgModelDeploymentRules{
@@ -198,7 +217,7 @@ function Get-CMOrgModelDeploymentRules{
                 $DeployCollections = Get-CMDeviceCollection -Name $Test
             } else {
                 $DeployCollections = @(Get-CMDeviceCollection -Name "UIUC-ENGR-Deploy*") + @(Get-CMDeviceCollection -Name "UIUC-ENGR-IS Deploy*")
-                $DeployCollections = $DeployCollections | Sort-Object -Property Name
+				$DeployCollections = $DeployCollections | Sort-Object -Property Name
             }
 
             if($Test -and ($TestType -like "Int*")){
@@ -223,13 +242,13 @@ function Get-CMOrgModelDeploymentRules{
                 Write-Verbose "Initializing the Membership Rules array as empty"
                 $MembershipRules = $null
                 Write-Verbose "Getting Direct Membership Rules for $($Collection.Name)..."
-                $DirectMembershipRules = Get-CMDeviceCollectionDirectMembershipRule -CollectionName $Collection.Name
+                $DirectMembershipRules = (Get-CMDeviceCollectionDirectMembershipRule -CollectionName $Collection.Name).RuleName
                 Write-Verbose "Getting Exclude Membership Rules for $($Collection.Name)..."
-                $ExcludeMembershipRules = Get-CMDeviceCollectionExcludeMembershipRule -CollectionName $Collection.Name
+                $ExcludeMembershipRules = (Get-CMDeviceCollectionExcludeMembershipRule -CollectionName $Collection.Name).RuleName
                 Write-Verbose "Getting Include Membership Rules for $($Collection.Name)..."
-                $IncludeMembershipRules = Get-CMDeviceCollectionIncludeMembershipRule -CollectionName $Collection.Name
+                $IncludeMembershipRules = (Get-CMDeviceCollectionIncludeMembershipRule -CollectionName $Collection.Name).RuleName
                 Write-Verbose "Getting Query Membership Rules for $($Collection.Name)..."
-                $QueryMembershipRules = Get-CMDeviceCollectionQueryMembershipRule -CollectionName $Collection.Name
+                $QueryMembershipRules = (Get-CMDeviceCollectionQueryMembershipRule -CollectionName $Collection.Name).RuleName
                 
                 Write-Verbose "Getting the Application Deployment for $($Collection.Name)..."
                 $AppDeployment = Get-CMApplicationDeployment -Collection $Collection
@@ -254,34 +273,29 @@ function Get-CMOrgModelDeploymentRules{
 
                     ## Install or Uninstall
                     Write-Verbose "Determining whether this is Install or Uninstall"
-                    switch($DeploySummary.DesiredConfigType){
-                        1 { $Action = "INSTALL" }
-                        2 { $Action = "UNINSTALL" }
-                        Default {
-                            "UNKNOWN"
-                        }
+                    $Action = switch($DeploySummary.DesiredConfigType){
+                        1 { "INSTALL" }
+                        2 { "UNINSTALL" }
+                        Default { "UNKNOWN" }
                     }
                 
                     ## Available or Required
                     Write-Verbose "Determining whether this is Required or Available"
-                    $OfferType = ($AppDeployment).OfferTypeID
-                    switch ($OfferType){
-                        0 { $DeploymentType = "REQUIRED" }
-                        2 { $DeploymentType = "AVAILABLE" }
-                        Default {
-                            "UNKNOWN"
-                        }
+                    $Purpose = switch($AppDeployment.OfferTypeID){
+                        0 { "REQUIRED" }
+                        2 { "AVAILABLE" }
+                        Default { "UNKNOWN" }
                     }
 
                     if(
                         ($ISOnly) -and
-                        (-not ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) ) -and
-                        (-not ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) )
+                        (-not ($ExcludeMembershipRules | Where-Object {$_ -like "UIUC-ENGR-IS*"}) ) -and
+                        (-not ($IncludeMembershipRules | Where-Object {$_ -like "UIUC-ENGR-IS*"}) )
                     ) {
                         # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
                         Write-Verbose "ISOnly flag was declared, but no Include or Exclude membership rules were found on $($Collection.Name) referencing `"UIUC-ENGR-IS*`" collections."
                     } else {
-                        $MembershipRules = Build-ArrayObject -Collection $Collection -Application $Applications -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -DeploymentType $DeploymentType
+                        $MembershipRules = Build-ArrayObject -Collection $Collection -Application $Applications -AppDeployment $AppDeployment -Action $Action -DirectMembershipRules $DirectMembershipRules -ExcludeMembershipRules $ExcludeMembershipRules -IncludeMembershipRules $IncludeMembershipRules -QueryMembershipRules $QueryMembershipRules -Purpose $Purpose
                         Write-Verbose "Adding to the function output array."
                         Write-Verbose ($MembershipRules | Format-List | Out-String)
                         $output.Add($MembershipRules) | Out-Null
