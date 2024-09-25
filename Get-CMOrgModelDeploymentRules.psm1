@@ -78,7 +78,7 @@ function Build-ArrayObject {
 	
 	# Certain fields may be arrays of values, if the collection has multiple deployments.
 	# Save a formatted version of those which are more readable after being JSON-ified:
-	if($null -ne $IncludeMembershipRules.RuleName) {
+	if($null -ne $IncludeMembershipRules) {
 		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules -join " \\🔹")
 	}
 	
@@ -287,8 +287,8 @@ function Get-CMOrgModelDeploymentRules{
 
                     if(
                         ($ISOnly) -and
-                        (-not ($ExcludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) ) -and
-                        (-not ($IncludeMembershipRules | Where-Object {$_.RuleName -like "UIUC-ENGR-IS*"}) )
+                        (-not ($ExcludeMembershipRules | Where-Object {$_ -like "UIUC-ENGR-IS*"}) ) -and
+                        (-not ($IncludeMembershipRules | Where-Object {$_ -like "UIUC-ENGR-IS*"}) )
                     ) {
                         # This weakly only filters by Exclude and Include membership rules, because we don't have easily identifiable conventions via Direct or Query-based membership rules
                         Write-Verbose "ISOnly flag was declared, but no Include or Exclude membership rules were found on $($Collection.Name) referencing `"UIUC-ENGR-IS*`" collections."
