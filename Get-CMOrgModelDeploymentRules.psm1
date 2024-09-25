@@ -73,7 +73,18 @@ function Build-ArrayObject {
         $QueryMembershipRules,
         $Purpose
     )
+
+    $CollectionName = $Collection.Name
+    $Name = $AppDeployment.ApplicationName
+    $OverrideServiceWindows = $AppDeployment.OverrideServiceWindows
+    $RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows
+    $Supersedence = $AppDeployment.UpdateSupersedence
+    $Comments = $Application.LocalizedDescription
+	
+	### Lazy hack to account for us not being on GMT
+    $DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))
     
+	# Translate OfferFlags to determine whether Implicit Uninstall is enabled
 	$ImplicitUninstall = Resolve-ImplicitUninstall -ApplicationDeployment $AppDeployment
 	
 	# Certain fields may be arrays of values, if the collection has multiple deployments.
@@ -82,8 +93,8 @@ function Build-ArrayObject {
 		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules -join " \\🔹")
 	}
 	
-	if($null -ne $AppDeployment.ApplicationName) {
-		$NameFormatted = "🔹" + ($AppDeployment.ApplicationName -join " \\🔹")
+	if($null -ne $Name) {
+		$NameFormatted = "🔹" + ($Name -join " \\🔹")
 	}
 	
 	if($null -ne $Action) {
@@ -92,9 +103,9 @@ function Build-ArrayObject {
 		$ActionFormatted = $ActionFormatted.Replace("UNINSTALL","🗑️UNINSTALL")
 	}
 	
-	if($null -ne $Application.LocalizedDescription) {
-		if($Application.LocalizedDescription -ne "") {
-			$CommentsFormatted = "🔹" + ($Application.LocalizedDescription -join " \\🔹")
+	if($null -ne $Comments) {
+		if($Comments -ne "") {
+			$CommentsFormatted = "🔹" + ($Comments -join " \\🔹")
 		}
 	}
 	
@@ -104,8 +115,8 @@ function Build-ArrayObject {
 		$PurposeFormatted = $PurposeFormatted.Replace("REQUIRED","🔒REQUIRED")
 	}
 	
-	if($null -ne $AppDeployment.UpdateSupersedence) {
-		$SupersedenceFormatted = $AppDeployment.UpdateSupersedence -join " \\"
+	if($null -ne $Supersedence) {
+		$SupersedenceFormatted = $Supersedence -join " \\"
 		$SupersedenceFormatted = $SupersedenceFormatted.Replace("True","👑✔️Enabled")
 		$SupersedenceFormatted = $SupersedenceFormatted.Replace("False","👑❌Disabled")
 	}
@@ -115,15 +126,6 @@ function Build-ArrayObject {
 		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("True","🚮Implicit")
 		$ImplicitUninstallFormatted = $ImplicitUninstallFormatted.Replace("False","🚯Not Implicit")
 	}
-
-    $CollectionName = $Collection.Name
-    $Name = $AppDeployment.ApplicationName
-    ### Lazy hack to account for us not being on GMT
-    $DeploymentStartTime = $($AppDeployment.StartTime.AddHours(5))
-    $OverrideServiceWindows = $AppDeployment.OverrideServiceWindows
-    $RebootOutsideOfServiceWindows = $AppDeployment.RebootOutsideOfServiceWindows
-    $Supersedence = $AppDeployment.UpdateSupersedence
-    $Comments = $Application.LocalizedDescription
 
     Write-Verbose "Building the custom array for $CollectionName..."
     Write-Verbose "Name = $Name"
