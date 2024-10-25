@@ -153,25 +153,25 @@ function Build-ArrayObject {
     [PSCustomObject]@{
         CollectionName                  = $CollectionName
         Name                            = $Name
-		NameFormatted                   = $NameFormatted
+	NameFormatted                   = $NameFormatted
         DeploymentStartTime             = $DeploymentStartTime
         Action                          = $Action
-		ActionFormatted                 = $ActionFormatted
+	ActionFormatted                 = $ActionFormatted
         DirectMembershipRules           = $DirectMembershipRules
         ExcludeMembershipRules          = $ExcludeMembershipRules
         IncludeMembershipRules          = $IncludeMembershipRules
-		IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted
+	IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted
         QueryMembershipRules            = $QueryMembershipRules
         OverrideServiceWindows          = $OverrideServiceWindows
         RebootOutsideOfServiceWindows   = $RebootOutsideOfServiceWindows
         Purpose                         = $Purpose
-		PurposeFormatted                = $PurposeFormatted
+	PurposeFormatted                = $PurposeFormatted
         Supersedence                    = $Supersedence
-		SupersedenceFormatted           = $SupersedenceFormatted
+	SupersedenceFormatted           = $SupersedenceFormatted
         ImplicitUninstall               = $ImplicitUninstall
-		ImplicitUninstallFormatted      = $ImplicitUninstallFormatted
+	ImplicitUninstallFormatted      = $ImplicitUninstallFormatted
         Comments                        = $Comments
-		CommentsFormatted               = $CommentsFormatted
+	CommentsFormatted               = $CommentsFormatted
     }
 }
 
