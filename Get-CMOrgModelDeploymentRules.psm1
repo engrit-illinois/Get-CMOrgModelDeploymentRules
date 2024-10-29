@@ -92,6 +92,10 @@ function Build-ArrayObject {
 		$IncludeMembershipRulesFormatted = "🔹" + ($IncludeMembershipRules -join " \\🔹")
 	}
 	
+	if($null -ne $ExcludeMembershipRules) {
+		$ExcludeMembershipRulesFormatted = "🔸" + ($ExcludeMembershipRules -join " \\🔸")
+	}
+	
 	if($null -ne $Name) {
 		$NameFormatted = "🔹" + ($Name -join " \\🔹")
 	}
@@ -134,6 +138,7 @@ function Build-ArrayObject {
 	Write-Verbose "ActionFormatted = $ActionFormatted"
 	Write-Verbose "DirectMembershipRules = $DirectMembershipRules"
 	Write-Verbose "ExcludeMembershipRules = $ExcludeMembershipRules"
+	Write-Verbose "ExcludeMembershipRulesFormatted = $ExcludeMembershipRulesFormatted"
 	Write-Verbose "IncludeMembershipRules = $IncludeMembershipRules"
 	Write-Verbose "IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted"
 	Write-Verbose "QueryMembershipRules = $QueryMembershipRules"
@@ -150,27 +155,28 @@ function Build-ArrayObject {
 	
 	## Not sure how to handle Direct, Exclude, or Query rules yet. Will deal with them later
 	[PSCustomObject]@{
-		CollectionName				  = $CollectionName
+		CollectionName					= $CollectionName
 		Name							= $Name
-		NameFormatted				   = $NameFormatted
-		DeploymentStartTime			 = $DeploymentStartTime
-		Action						  = $Action
-		ActionFormatted				 = $ActionFormatted
-		DirectMembershipRules		   = $DirectMembershipRules
-		ExcludeMembershipRules		  = $ExcludeMembershipRules
-		IncludeMembershipRules		  = $IncludeMembershipRules
-		IncludeMembershipRulesFormatted = $IncludeMembershipRulesFormatted
+		NameFormatted					= $NameFormatted
+		DeploymentStartTime				= $DeploymentStartTime
+		Action							= $Action
+		ActionFormatted					= $ActionFormatted
+		DirectMembershipRules			= $DirectMembershipRules
+		ExcludeMembershipRules			= $ExcludeMembershipRules
+		ExcludeMembershipRulesFormatted	= $ExcludeMembershipRulesFormatted
+		IncludeMembershipRules			= $IncludeMembershipRules
+		IncludeMembershipRulesFormatted	= $IncludeMembershipRulesFormatted
 		QueryMembershipRules			= $QueryMembershipRules
-		OverrideServiceWindows		  = $OverrideServiceWindows
-		RebootOutsideOfServiceWindows   = $RebootOutsideOfServiceWindows
-		Purpose						 = $Purpose
+		OverrideServiceWindows			= $OverrideServiceWindows
+		RebootOutsideOfServiceWindows 	= $RebootOutsideOfServiceWindows
+		Purpose							= $Purpose
 		PurposeFormatted				= $PurposeFormatted
 		Supersedence					= $Supersedence
-		SupersedenceFormatted		   = $SupersedenceFormatted
-		ImplicitUninstall			   = $ImplicitUninstall
-		ImplicitUninstallFormatted	  = $ImplicitUninstallFormatted
+		SupersedenceFormatted			= $SupersedenceFormatted
+		ImplicitUninstall				= $ImplicitUninstall
+		ImplicitUninstallFormatted		= $ImplicitUninstallFormatted
 		Comments						= $Comments
-		CommentsFormatted			   = $CommentsFormatted
+		CommentsFormatted				= $CommentsFormatted
 	}
 }
 
