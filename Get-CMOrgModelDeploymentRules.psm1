@@ -97,7 +97,7 @@ function Build-ArrayObject {
 	}
 	
 	if($null -ne $Name) {
-		$NameFormatted = "🔹" + ($Name -join " \\🔹")
+		$NameFormatted = "💠" + ($Name -join " \\💠")
 	}
 	
 	if($null -ne $Action) {
@@ -108,7 +108,7 @@ function Build-ArrayObject {
 	
 	if($null -ne $Comments) {
 		if($Comments -ne "") {
-			$CommentsFormatted = "🔹" + ($Comments -join " \\🔹")
+			$CommentsFormatted = "💠" + ($Comments -join " \\💠")
 		}
 	}
 	
