@@ -30,14 +30,14 @@ By default collections which have no deployments are omitted from the output.
 
 ### -CollectionQueries [string[]]
 String array of wildcard queries defining which collections should be polled.  
-Default is `@("UIUC-ENGR-Deploy*","UIUC-ENGR-IS Deploy*","UIUC-ENGR-Uninstall*","UIUC-ENGR-IS Uninstall*"),`.  
+Default is `@("UIUC-ENGR-Deploy*","UIUC-ENGR-IS Deploy*","UIUC-ENGR-Uninstall*","UIUC-ENGR-IS Uninstall*","UIUC-ENGR-IS Maint Window*")`.  
 
 ### -Test
 When specified the queries defined by `-TestCollectionQueries` are used, instead of those defined by `-CollectionQueries`.  
 
 ### -TestCollectionQueries [string[]]
 Alternate set of deployment collection queries to be used for faster testing.  
-Default is `@("UIUC-ENGR-Deploy A*","UIUC-ENGR-IS Deploy A*","UIUC-ENGR-Uninstall*","UIUC-ENGR-IS Uninstall*")`.  
+Default is `@("UIUC-ENGR-Deploy A*","UIUC-ENGR-IS Deploy A*","UIUC-ENGR-Uninstall*","UIUC-ENGR-IS Uninstall*","UIUC-ENGR-IS Maint Window*")`.  
 
 ### -RandomCollections
 When specified, only a random set of deployment collections matching the given queries are processed, shortening the time to test, while still giving a hopefully representative, unique sample.  
