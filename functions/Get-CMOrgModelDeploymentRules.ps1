@@ -36,4 +36,3 @@ function Get-CMOrgModelDeploymentRules {
 		$Output
 	}
 }
-Get-CMOrgModelDeploymentRules -Test -RandomCollections -RandomCollectionsNum 3
