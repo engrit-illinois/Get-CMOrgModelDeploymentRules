@@ -13,13 +13,13 @@ ModuleVersion = '1.0.0'
 GUID = '5d192bb6-fe88-45b7-b699-d5457f541d41'
 
 # Author of this module
-Author = 'han44'
+Author = 'han44','mmseng'
 
 # Company or vendor of this module
 CompanyName = 'University of Illinois at Urbana-Champaign'
 
 # Copyright statement for this module
-Copyright = '(c) han44. All rights reserved.'
+Copyright = '(c) University of Illinois. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Module for interacting with MECM Organizational Deployments'
