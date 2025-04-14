@@ -18,7 +18,6 @@ function Process-Deployments($Deployments) {
 		}
 	}
 	else{
-		$DeploymentsCount = $Deployments.count
 		Write-Verbose "Found $($Deployments.Count) Deployments."
 		
 		Write-Verbose "Processing Deployments..."
@@ -30,12 +29,12 @@ function Process-Deployments($Deployments) {
 			# Store formatted version of deployment/content name
 			# As far as I can tell, this should be identical to whatever name is stored in the actual deployed content, and
 			# it's just easier to reference from the deployment data
-			$ContentNameIcon = $FEATURETYPES | Where { $_.Id -eq $Deployment.FeatureType } | Select -ExpandProperty "Icon"
+			$ContentNameIcon = $FEATURETYPES | Where-Object { $_.Id -eq $Deployment.FeatureType } | Select -ExpandProperty "Icon"
 			if(-not $ContentNameIcon) { $ContentNameIcon = "❓" }
 			$Deployment | Add-Member -NotePropertyName "_ContentNameF" -NotePropertyValue "$($ContentNameIcon)&nbsp;$($ContentName)"
 			
 			# Store formatted version of the deployment purpose
-			$Purpose = $DEPLOYMENTINTENTS | Where { $_.Id -eq $Deployment.DeploymentIntent }
+			$Purpose = $DEPLOYMENTINTENTS | Where-Object { $_.Id -eq $Deployment.DeploymentIntent }
 			$Deployment | Add-Member -NotePropertyName "_PurposeF" -NotePropertyValue ($Purpose.Icon + "&nbsp;" + $Purpose.Meaning)
 			
 			switch($Deployment.FeatureType) {

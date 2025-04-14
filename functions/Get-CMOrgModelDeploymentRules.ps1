@@ -1,6 +1,6 @@
 function Get-CMOrgModelDeploymentRules {
 
-	[CmdletBinding(SupportsShouldProcess)]
+	[CmdletBinding()]
 	param(
 		[switch]$Json,
 		[switch]$ISOnly,
