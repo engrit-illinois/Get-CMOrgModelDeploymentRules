@@ -1,18 +1,18 @@
 function Get-Collections {
 	[CmdletBinding()]
 	param (
-		[Parameter()]
-		[switch]
-		$Test,
-		[Parameter()]
-		[switch]
-		$RandomCollections,
-		[Parameter()]
-		[Int]
-		$RandomCollectionsNum,
+		[switch]$Json,
+		[switch]$ISOnly,
+		[switch]$IncludeCollectionsWithNoDeployments,
 		[string[]]$CollectionQueries,
+		[switch]$Test,
 		[string[]]$TestCollectionQueries,
-		[switch]$ISOnly
+		[switch]$RandomCollections,
+		[int]$RandomCollectionsNum,
+		[string]$Prefix = $DEFAULT_PREFIX,
+		[string]$SiteCode=$DEFAULT_SITE_CODE,
+		[string]$Provider=$DEFAULT_PROVIDER,
+		[string]$CMPSModulePath
 	)
 	Write-Host "Getting all collections... (note: this takes a while)"
 	if($Test) { $CollectionQueries = $TestCollectionQueries }
