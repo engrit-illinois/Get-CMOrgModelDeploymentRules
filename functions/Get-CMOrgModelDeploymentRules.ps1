@@ -23,7 +23,7 @@ function Get-CMOrgModelDeploymentRules {
 
 	process{
 		$Collections = Get-Collections @PSBoundParameters -CollectionQueries $CollectionQueries -TestCollectionQueries $TestCollectionQueries
-		$Collections = Process-Collections $Collections
+		$Collections = Process-Collections -Collections $Collections -Formatted -ISOnly:$ISOnly
 	} # End of process block
 
 	end{

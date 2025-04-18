@@ -4,6 +4,7 @@ function Get-Collections {
 		[switch]$Json,
 		[switch]$ISOnly,
 		[switch]$IncludeCollectionsWithNoDeployments,
+		[switch]$AppNamesOnly,
 		[string[]]$CollectionQueries,
 		[switch]$Test,
 		[string[]]$TestCollectionQueries,
