@@ -34,7 +34,7 @@ Returns a list of all deployed applications in the Deployment Collection Model.
 ## PARAMETERS
 
 ### -AppNamesOnly
-{{ Fill AppNamesOnly Description }}
+Switch parameter that when specified, removes the Prefix from the returned Application list. This can help improve readability of the resulting output.
 
 ```yaml
 Type: SwitchParameter
